@@ -1,0 +1,12 @@
+<resources>
+    <string name="app_name">MyMemory</string>
+    <string name="save">save</string>
+    <string name="game_name_hint">Game name e.g Panda Fun</string>
+    <string name="easy">Easy (4 x 2)</string>
+    <string name="medium">Medium (6 x 3)</string>
+    <string name="hard">Hard (6 x 6)</string>
+    <string name="enter_game_name">Enter game name</string>
+    <string name="pairs">Pairs: 0/4</string>
+    <string name="moves">Moves: 0</string>
+    <string name="game_tile">Game Tile</string>
+</resources>
