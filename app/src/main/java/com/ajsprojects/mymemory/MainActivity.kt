@@ -16,7 +16,6 @@ import android.widget.RadioGroup
 import android.widget.TextView
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
-import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.coordinatorlayout.widget.CoordinatorLayout
 import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.GridLayoutManager
@@ -29,7 +28,10 @@ import com.ajsprojects.mymemory.utils.EXTRA_GAME_NAME
 import com.github.jinatonic.confetti.CommonConfetti
 import com.google.android.gms.ads.AdRequest
 import com.google.android.gms.ads.AdView
+import com.google.android.gms.ads.LoadAdError
 import com.google.android.gms.ads.MobileAds
+import com.google.android.gms.ads.interstitial.InterstitialAd
+import com.google.android.gms.ads.interstitial.InterstitialAdLoadCallback
 import com.google.android.material.snackbar.Snackbar
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
@@ -45,6 +47,8 @@ class MainActivity : AppCompatActivity() {
     private lateinit var tvNumPairs: TextView
 
     private lateinit var mAdView: AdView
+
+    private var mInterstitialAd: InterstitialAd? = null
 
     private val db = Firebase.firestore
     private var gameName: String? = null
@@ -62,6 +66,18 @@ class MainActivity : AppCompatActivity() {
 
         val adRequest = AdRequest.Builder().build()
         mAdView.loadAd(adRequest)
+
+        InterstitialAd.load(this,"ca-app-pub-5659912221949166/2040729116", adRequest, object : InterstitialAdLoadCallback() {
+            override fun onAdFailedToLoad(adError: LoadAdError) {
+                Log.d(TAG, adError?.message)
+                mInterstitialAd = null
+            }
+
+            override fun onAdLoaded(interstitialAd: InterstitialAd) {
+                Log.d(TAG, "Ad was loaded.")
+                mInterstitialAd = interstitialAd
+            }
+        })
 
 
         clRoot = findViewById(R.id.clRoot)
@@ -253,12 +269,18 @@ class MainActivity : AppCompatActivity() {
             if (memoryGame.haveWonGame()){
                 Snackbar.make(clRoot, "You won! Congratulations.", Snackbar.LENGTH_SHORT).show()
                 CommonConfetti.rainingConfetti(clRoot, intArrayOf(Color.YELLOW, Color.GREEN, Color.MAGENTA)).oneShot()
+                if (mInterstitialAd != null) {
+                    mInterstitialAd?.show(this)
+                } else {
+                    Log.d("TAG", "The interstitial ad wasn't ready yet.")
+                }
             }
         }
         tvNumMoves.text = "Moves: ${memoryGame.getNumMoves()}"
             adapter.notifyDataSetChanged()
 
     }
+
 
     companion object {
         private const val TAG = "MainActivity"
